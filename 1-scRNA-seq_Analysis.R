@@ -123,8 +123,6 @@ scRNA_endosperm <- merge(data6day1, y=data7day1, data7day2, data7day3, data8day1
 scRNA_endosperm <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% ScaleData() %>% RunPCA(verbose=FALSE)
 ##整合
 system.time({scRNA_endosperm <- RunHarmony(scRNA_endosperm, group.by.vars = "orig.ident")})
-#   用户   系统   流逝 
-# 34.308  0.024 34.324
 #降维聚类
 scRNA_harmony <- RunUMAP(scRNA_harmony, reduction = "harmony", dims = 1:50)
 scRNA_harmony <- FindNeighbors(scRNA_harmony, reduction = "harmony", dims = 1:50) %>% FindClusters(resulotion=1.2)
