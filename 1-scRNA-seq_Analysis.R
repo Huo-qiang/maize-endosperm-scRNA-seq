@@ -215,8 +215,7 @@ write.csv(maize.DAP.RNA.markers.wilcox, "all.DAP.RNA.markers.wilcox.csv")
 prop.table(table(Idents(maize), maize$day), margin = 2)
 write.csv((prop.table(table(Idents(maize), maize$day), margin = 2)), "20210114-cell-propotions-by-day-res1.2.csv")
 ##平均表达量统计
-Idents(maize) <- "
-"
+Idents(maize) <- "seurat_clusters"
 clusters.res.1.2.averagexpression.integreted.RNA.data <- AverageExpression(maize, assays = "RNA", slot = "data")
 write.csv(as.matrix(clusters.res.1.2.averagexpression.integreted.RNA.data$RNA), "RNA-average.expression-res.1.2.csv")
 clusters.res.1.2.averagexpression.split.RNA.data <- AverageExpression(maize, assays = "RNA", slot = "data", add.ident = ("day"))
