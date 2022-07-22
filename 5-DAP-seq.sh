@@ -152,5 +152,33 @@ reads_in_peaks=$(bedtools sort -i ${dirgem}/${base}.GEM_rmgreylist.bed \
 (echo "${base}"; awk "BEGIN {print "${reads_in_peaks}"/"${total_reads}"}"; echo "FRiP") > ${dirFRIP}/${base}.FRiP
 
 done;
-##---------------------------------------------------MEME--------------------------------------------------------------------------------------##
+##---------------------------------------------------peak.fa--------------------------------------------------------------------------------------##
 
+for sample in `ls /mnt/diskRAID/Huo/DAPseq/gem/results/narrowpeak/*.GEM_events.narrowPeak`
+
+do
+	      dirmeme="/mnt/diskRAID/Huo/DAPseq/gem/results/narrowpeak"
+	         dirfa="/mnt/diskRAID/Huo/DAPseq/gem/results/meme/fa"
+		    base=$(basename $sample ".GEM_events.narrowPeak")
+
+		    bedtools getfasta -fi mnt/diskRAID/Huo/gem/Zea_mays.B73_RefGen_v4.chr.fa -bed ${dirmeme}/${base}.GEM_events.narrowPeak -fo ${dirfa}/${base}.fa
+	    done;
+##---------------------------------------------------meme--------------------------------------------------------------------------------------##    
+      
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -n 32
+
+for sample in `ls /mnt/diskRAID/Huo/DAPseq/gem/results/meme/fa/*.fa`;
+
+do
+
+	   # set path names
+	      dirmeme="/mnt/diskRAID/Huo/DAPseq/gem/results/meme/results"
+	         dirfa="/mnt/diskRAID/Huo/DAPseq/gem/results/meme/fa"
+		    base=$(basename $sample ".rmblacklist.bed")
+
+		    meme-chip -minw 6 -maxw 12 -ccut 100 -meme-nmotifs 0 -spamo-skip -fimo-skip -oc ${dirmeme}/${base} ${dirfa}/${base}.fa
+
+	    done;
+##############################################################################################################################################################
