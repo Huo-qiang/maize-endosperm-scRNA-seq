@@ -215,7 +215,8 @@ write.csv(maize.DAP.RNA.markers.wilcox, "all.DAP.RNA.markers.wilcox.csv")
 prop.table(table(Idents(maize), maize$day), margin = 2)
 write.csv((prop.table(table(Idents(maize), maize$day), margin = 2)), "20210114-cell-propotions-by-day-res1.2.csv")
 ##平均表达量统计
-Idents(maize) <- "integrated_snn_res.1.2"
+Idents(maize) <- "
+"
 clusters.res.1.2.averagexpression.integreted.RNA.data <- AverageExpression(maize, assays = "RNA", slot = "data")
 write.csv(as.matrix(clusters.res.1.2.averagexpression.integreted.RNA.data$RNA), "RNA-average.expression-res.1.2.csv")
 clusters.res.1.2.averagexpression.split.RNA.data <- AverageExpression(maize, assays = "RNA", slot = "data", add.ident = ("day"))
@@ -247,7 +248,7 @@ maize$celltype[WhichCells(object = maize, idents = c(21))] <- "mitochondrial RNA
 DimPlot(maize, reduction = "umap", label = TRUE,group.by ="celltype")
 DimPlot(maize, reduction = "tsne", label = TRUE,group.by ="celltype")
 ## 用subset函数选取子集
-maize_sub<- subset(x = maize, subset = integrated_snn_res.1.2 == c("0","1","3","4","5","7","11","13","16","18"))
+maize_sub<- subset(x = maize, subset = seurat_cluster == c("0","1","3","4","5","7","11","13","16","18"))
 data.6day.only.sub <- subset(x = maize_sub, subset = day == c("6d"))
 data.7day.only.sub <- subset(x = maize_sub, subset = day == c("7d"))
 data.8day.only.sub <- subset(x = maize_sub, subset = day == c("8d"))
@@ -256,7 +257,7 @@ save(maize_sub,data.6day.only.sub,data.7day.only.sub,data.8day.only.sub,file="ma
 load("maize_sub.Rdata")
 maize_sub <- FindNeighbors(maize_sub, dims = 1:50)
 maize_sub <- RunUMAP(maize_sub, dims = 1:50)
-DimPlot(maize_sub, group.by = "integrated_snn_res.1.2", reduction = "umap", label = TRUE, split.by = "day", label.size = 10, repel = TRUE, pt.size = 0.5, ncol = 3)
+DimPlot(maize_sub, group.by = "seurat_cluster", reduction = "umap", label = TRUE, split.by = "day", label.size = 10, repel = TRUE, pt.size = 0.5, ncol = 3)
 
 ## 统计分群信息
 # How many cells are in each cluster
