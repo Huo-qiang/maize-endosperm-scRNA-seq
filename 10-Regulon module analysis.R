@@ -115,7 +115,7 @@ p.list <- lapply(paste0("M",1:k), function(module){
   max.val <- quantile(data.use[, module], 0.99)
   low.val <- quantile(data.use[, module], 0.1)
   data.use[, module] <- ifelse(data.use[, module] > max.val, max.val, data.use[, module])
-  ggplot(data.use, aes(tSNE_1, tSNE_2, color=get(module))) + 
+  ggplot(data.use, aes(UMAP_1, UMAP_2, color=get(module))) + 
     geom_point(size=0.05) + 
     theme_bw(base_size = 15) + 
     ggtitle(module) + 
