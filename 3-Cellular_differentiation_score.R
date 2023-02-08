@@ -1,6 +1,7 @@
 library(Seurat)
 library(ggplot2)
 library(UCell)
+library(viridis)
 ##读取6dap和8dap的marker基因
 maize_sub <- readRDS("maize_sub.rds")
 dap6markergene<-read.csv("day6marker.csv")
@@ -17,12 +18,11 @@ maize_sub_ucell <- AddModuleScore_UCell(maize_sub, features = markers)
 cell_information <- maize_sub_ucell@meta.data
 ###
 cell_information$differentiation_score<-cell_information$dap8_UCell/cell_information$dap6_UCell
-cell_information$differentiation_score<- log2(cell_information[,22])
+cell_information$differentiation_score<- log2((1+cell_information[,22]))
 maize_sub_ucell@meta.data<- cell_information
 ##
 FeaturePlot(maize_sub_ucell, reduction = "umap", features = "differentiation_score", 
             ncol = 1, order = T,
-            min.cutoff = "q03", max.cutoff = "q99",
-            cols = c("#F5F5F5", "#333399"), pt.size = 0.1)
+            min.cutoff = "q03", max.cutoff = "q99", pt.size = 0.1)+scale_color_viridis(option = "A")
 ##
 saveRDS(maize_sub_ucell,"maize_sub_ucell.rds")
