@@ -7,8 +7,8 @@ maize_sub <- readRDS("maize_sub.rds")
 dap6markergene<-read.csv("day6marker.csv")
 dap8markergene<-read.csv("day5marker.csv")
 ##标记基因与单细胞检测到的基因取交集
-dap6markergene<-intersect(rownames(submaize),day6marker$day6)
-dap8markergene<-intersect(rownames(submaize),day8marker$day8)
+dap6markergene<-intersect(rownames(submaize),dap6markergene$day6)
+dap8markergene<-intersect(rownames(submaize),dap6markergene$day8)
 # 构建UCell需要输入的gene sets
 markers <- list()
 markers$dap6<-dap6markergene
