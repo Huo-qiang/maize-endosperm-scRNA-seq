@@ -8,7 +8,7 @@ dap6markergene<-read.csv("day6marker.csv")
 dap8markergene<-read.csv("day8marker.csv")
 ##标记基因与单细胞检测到的基因取交集
 dap6markergene<-intersect(rownames(submaize),dap6markergene$day6)
-dap8markergene<-intersect(rownames(submaize),dap6markergene$day8)
+dap8markergene<-intersect(rownames(submaize),dap8markergene$day8)
 # 构建UCell需要输入的gene sets
 markers <- list()
 markers$dap6<-dap6markergene
