@@ -14,15 +14,15 @@ markers <- list()
 markers$dap6<-dap6markergene
 markers$dap8<-dap8markergene
 ###
-maize_sub_ucell <- AddModuleScore_UCell(maize_sub, features = markers)
-cell_information <- maize_sub_ucell@meta.data
+submaize_ucell <- AddModuleScore_UCell(submaize, features = markers,maxRank = 2500)
+cell_information <- submaize_ucell@meta.data
 ###
 cell_information$differentiation_score<-cell_information$dap8_UCell/cell_information$dap6_UCell
 cell_information$differentiation_score<- log2((1+cell_information[,22]))
-maize_sub_ucell@meta.data<- cell_information
+submaize_ucell@meta.data<- cell_information
 ##
-FeaturePlot(maize_sub_ucell, reduction = "umap", features = "differentiation_score", 
+FeaturePlot(submaize_ucell, reduction = "umap", features = "differentiation_score", 
             ncol = 1, order = T,
             min.cutoff = "q03", max.cutoff = "q99", pt.size = 0.1)+scale_color_viridis(option = "A")
 ##
-saveRDS(maize_sub_ucell,"maize_sub_ucell.rds")
+saveRDS(maize_sub_ucell,"submaize_ucell.rds")
