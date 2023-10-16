@@ -1,8 +1,9 @@
 ######################################overlap DAP-seq and GRN#############################################################
-#!/bin/bash
-#SBATCH -p amd_256
-#SBATCH -N 1
-#SBATCH -n 64
+for i in {1..50}; do head -n 1000000 GRN${i}.tsv > GRN${i}_extracted.tsv; done
+cat GRN*_extracted.tsv > combined.tsv
+awk '{print $1"_"$2,$4}' combined.tsv | cut -f2- > modified_combined.tsv
+cat modified_combined.tsv | sort | uniq -c  > modified_combined_with_counts.tsv
+
 for filename in `ls /mnt/diskRAID/Huo/GRN/*.tsv`
 
 do
