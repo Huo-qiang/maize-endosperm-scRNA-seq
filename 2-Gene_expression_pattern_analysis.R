@@ -1,10 +1,10 @@
-##使用国内镜像安装包
+## Install packages using domestic mirrors
 
 options("repos"= c(CRAN="https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
 options(BioC_mirror="http://mirrors.ustc.edu.cn/bioc/")
 install.packages("Cairo")
 install.packages("extrafont")
-##加载包
+##library packages
 
 library(readr)
 library(dplyr)
@@ -40,7 +40,7 @@ library(grid)
 Sys.setenv(LANGUAGE = "en") 
 options(stringsAsFactors = FALSE) #禁止chr转成factor
 ##
-##输入文件的预处理
+##load files
 java -mx1024M -jar stem.jar -b bulk_RNA-seq_maize_endosperm.txt output
 # gene expression
 exp_all <- read.delim("bulk_RNA-seq_ave678dap.txt", check.names = F,
@@ -54,14 +54,14 @@ genetable <- read.delim("bulk_RNA-seq_genetable.txt", check.names = F)
 colnames(genetable)[4:ncol(genetable)] <- as.character(seq(1:length(tp) - 1))
 ##Repeat data values will be averaged with the values from the original data file using the median.
 colnames(exp_all)[2:ncol(exp_all)] <- as.character(seq(1:length(tp) - 1))
-# 进入STEM profile的GeneSymbol
+# go STEM profile of GeneSymbol
 GeneSymbolp <- base::intersect(genetable$`Gene Symbol`, exp_all$`Gene Symbol`)
 length(GeneSymbolp)
-#只保留进入profile的Gene Symbol
+# Keep only the Gene Symbol that goes into the profile
 exp_all <- exp_all[exp_all$`Gene Symbol` %in% GeneSymbolp,]
 exp_all <- aggregate(.~`Gene Symbol`, exp_all, median) 
 dim(exp_all)
-#向表达矩阵添加基因所在的profile
+#Add the gene's profile to the expression matrix
 exp_all.pro <-  genetable %>% select(`Gene Symbol`, Profile) %>% 
   right_join(exp_all, by = "Gene Symbol") 
   profiletable %<>% separate(col = `Profile Model`, 
@@ -144,7 +144,7 @@ plot_box <-
         axis.line = element_blank(),
         panel.border = element_rect(linetype = "solid", color = "black", fill = NA))
 #plot_box
-# profile的编号和每个profile内的基因数
+# of profiles and number of genes within each profile
 plot_text_1 <- 
   nest_part %>% select(Profile, `# Genes Assigned`) %>% unnest() %>% 
   add_column(., x = rep(1, nrow(.))) %>% 
@@ -160,7 +160,7 @@ plot_text_1 <-
         strip.text = element_blank()) 
 #plot_text_1
 
-# 折线图的y轴title
+# The y-axis of the line graph title
 plot_text_2 <- nest_part %>% select(Profile, `# Genes Assigned`) %>% unnest() %>% 
   add_column(., x = rep(1, nrow(.))) %>% 
   add_column(., y = rep(1, nrow(.))) %>% 
@@ -177,7 +177,7 @@ plot_text_2 <- nest_part %>% select(Profile, `# Genes Assigned`) %>% unnest() %>
         strip.text = element_blank()) 
 #plot_text_2
 
-# box plot的y轴title
+# y-axis title of the block diagram
 plot_text_3 <- nest_part %>% select(Profile, `# Genes Assigned`) %>% unnest() %>% 
   add_column(., x = rep(1, nrow(.))) %>% 
   add_column(., y = rep(1, nrow(.))) %>% 
@@ -193,7 +193,7 @@ plot_text_3 <- nest_part %>% select(Profile, `# Genes Assigned`) %>% unnest() %>
         strip.background = element_blank(),
         strip.text = element_blank()) 
 #plot_text_3
-##拼图并输出
+##Puzzle and output
 CairoPDF(file = "STEMbox.pdf", width = 6, height = 14)
 
 grid.newpage() 
