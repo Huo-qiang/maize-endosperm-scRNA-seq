@@ -2,19 +2,19 @@ library(Seurat)
 library(ggplot2)
 library(UCell)
 library(viridis)
-##读取6dap和8dap的marker基因
+##load 6dap and 7dap marker gene
 maize_sub <- readRDS("maize_sub.rds")
 dap6markergene<-read.csv("day6marker.csv")
-dap8markergene<-read.csv("day8marker.csv")
-##标记基因与单细胞检测到的基因取交集
+dap7markergene<-read.csv("day7marker.csv")
+##Marker genes take intersection with genes detected in single cells
 dap6markergene<-intersect(rownames(submaize),dap6markergene$day6)
-dap8markergene<-intersect(rownames(submaize),dap8markergene$day8)
-# 构建UCell需要输入的gene sets
+dap8markergene<-intersect(rownames(submaize),dap7markergene$day7)
+# Gene sets that need input to build UCell
 markers <- list()
 markers$dap6<-dap6markergene
 markers$dap8<-dap8markergene
 ###
-submaize_ucell <- AddModuleScore_UCell(submaize, features = markers,maxRank = 2500)
+submaize_ucell <- AddModuleScore_UCell(submaize, features = markers,maxRank = nrow(submaize))
 cell_information <- submaize_ucell@meta.data
 ###
 cell_information$differentiation_score<-cell_information$dap8_UCell/cell_information$dap6_UCell
