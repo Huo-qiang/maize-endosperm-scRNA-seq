@@ -127,138 +127,6 @@ scRNA_harmony <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% Sca
 system.time({scRNA_endosperm <- RunHarmony(scRNA_endosperm, group.by.vars = "orig.ident")})
 scRNA_harmony <- RunUMAP(scRNA_harmony, reduction = "harmony", dims = 1:50)
 scRNA_harmony <- FindNeighbors(scRNA_harmony, reduction = "harmony", dims = 1:50) %>% FindClusters(resulotion=0.75)
-############
-rm(list=ls())
-memory.limit(204800)
-
-library(Seurat)
-library(ggplot2)
-library(cowplot)
-library(patchwork)
-library(dplyr)
-library(clustree)
-library(monocle)
-library(SeuratWrappers)
-library(ggplot2)
-library(patchwork)
-library(magrittr)
-## 扩大future.global
-options(future.globals.maxSize= 10000000000)
-
-##Setting 10x files location
-data6day1_dir <- "F:/PhD/single cell/combined/6DAP-1"
-data7day1_dir <- "F:/PhD/single cell/combined/7DAP-1"
-data7day2_dir <- "F:/PhD/single cell/combined/7DAP-2"
-data7day3_dir <- "F:/PhD/single cell/combined/7DAP-3"
-#data8day1_dir <- "F:/PhD/single cell/combined/8DAP-1"
-#data8day2_dir <- "F:/PhD/single cell/combined/8DAP-2"
-#data8day3_dir <- "F:/PhD/single cell/combined/8DAP-3"
-
-##load 10x files
-data6day1.data <- Read10X(data.dir = data6day1_dir)
-data7day1.data <- Read10X(data.dir = data7day1_dir)
-data7day2.data <- Read10X(data.dir = data7day2_dir)
-data7day3.data <- Read10X(data.dir = data7day3_dir)
-#data8day1.data <- Read10X(data.dir = data8day1_dir)
-#data8day2.data <- Read10X(data.dir = data8day2_dir)
-#data8day3.data <- Read10X(data.dir = data8day3_dir)
-
-
-
-###Create seurat objects and further filter the data, with each feature occurring in at least 3 cells
-
-data6day1 <- CreateSeuratObject(counts = data6day1.data, project = "6day1", min.cells = 3)
-data7day1 <- CreateSeuratObject(counts = data7day1.data, project = "7day1", min.cells = 3)
-data7day2 <- CreateSeuratObject(counts = data7day2.data, project = "7day2", min.cells = 3)
-data7day3 <- CreateSeuratObject(counts = data7day3.data, project = "7day3", min.cells = 3)
-#data8day1 <- CreateSeuratObject(counts = data8day1.data, project = "8day1", min.cells = 3)
-#data8day2 <- CreateSeuratObject(counts = data8day2.data, project = "8day2", min.cells = 3)
-#data8day3 <- CreateSeuratObject(counts = data8day3.data, project = "8day3", min.cells = 3)
-
-##Marker mitochondrial genes
-data6day1 <- PercentageFeatureSet(data6day1, pattern = "^Zeam", col.name = "percent.mt")
-data7day1 <- PercentageFeatureSet(data7day1, pattern = "^Zeam", col.name = "percent.mt")
-data7day2 <- PercentageFeatureSet(data7day2, pattern = "^Zeam", col.name = "percent.mt")
-data7day3 <- PercentageFeatureSet(data7day3, pattern = "^Zeam", col.name = "percent.mt")
-#data8day1 <- PercentageFeatureSet(data8day1, pattern = "^Zeam", col.name = "percent.mt")
-#data8day2 <- PercentageFeatureSet(data8day2, pattern = "^Zeam", col.name = "percent.mt")
-#data8day3 <- PercentageFeatureSet(data8day3, pattern = "^Zeam", col.name = "percent.mt")
-
-## Calculate the correlation between UMI and gene
-data6day1$log10GenesPerUMI <- log10(data6day1$nFeature_RNA) / log10(data6day1$nCount_RNA)
-data7day1$log10GenesPerUMI <- log10(data7day1$nFeature_RNA) / log10(data7day1$nCount_RNA)
-data7day2$log10GenesPerUMI <- log10(data7day2$nFeature_RNA) / log10(data7day2$nCount_RNA)
-data7day3$log10GenesPerUMI <- log10(data7day3$nFeature_RNA) / log10(data7day3$nCount_RNA)
-#data8day1$log10GenesPerUMI <- log10(data8day1$nFeature_RNA) / log10(data8day1$nCount_RNA)
-#data8day2$log10GenesPerUMI <- log10(data8day2$nFeature_RNA) / log10(data8day2$nCount_RNA)
-#data8day3$log10GenesPerUMI <- log10(data8day3$nFeature_RNA) / log10(data8day3$nCount_RNA)
-
-##View the mitochondrial gene ratio distribution map
-# VlnPlot(data6day, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
-
-## look feature-feature relationships, but can be used
-# for anything calculated by the object, i.e. columns in object metadata, PC scores etc.
-
-# plot7day1 <- FeatureScatter(data7day, feature1 = "nCount_RNA", feature2 = "percent.mt")
-# plot7day2 <- FeatureScatter(data7day, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
-# plot7day2
-# plot7day1 + plot7day2
-
-## 查看数据质量
-# metadata <- data7day@meta.data
-
-# metadata %>% 
-#  ggplot(aes(x=nCount_RNA)) + 
-#  geom_density(alpha = 0.2) + 
-#  scale_x_log10() + 
-#  theme_classic() +
-#  ylab("Cell density") +
-#  geom_vline(xintercept = 500)
-
-# Visualize the overall complexity of the gene expression by visualizing the genes detected per UMI
-# metadata %>%
-#  ggplot(aes(x=log10GenesPerUMI)) +
-#  geom_density(alpha = 0.2) +
-#  theme_classic() +
-#  geom_vline(xintercept = 0.80)
-
-###Further filtering of cells: removal of data containing more than 2 cells feature< 8000; retention of mitochondrial genes with less than 5% of transcripts, removal of dead cells
-
-data6day1 <- subset(data6day1, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-data7day1 <- subset(data7day1, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-data7day2 <- subset(data7day2, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-data7day3 <- subset(data7day3, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-#data8day1 <- subset(data8day1, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-#data8day2 <- subset(data8day2, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-#data8day3 <- subset(data8day3, subset = nFeature_RNA >500 & nFeature_RNA < 7500 & percent.mt < 5 & nCount_RNA > 1000 & log10GenesPerUMI > 0.80 )
-
-## Adding grouping information to seurat objects
-data6day1$day <- "6d"
-data7day1$day <- "7d"
-data7day2$day <- "7d"
-data7day3$day <- "7d"
-#data8day1$day <- "8d"
-#data8day2$day <- "8d"
-d#ata8day3$day <- "8d"
-#cell cycle marker
-scRNA_endosperm <- CellCycleScoring(scRNA_endosperm, 
-                           s.features = g1sgene, 
-                           g2m.features = g2mgene, 
-                           set.ident = TRUE)
-##save RDS
-save(data6day1,data7day1,data7day2,data7day3,data8day1,data8day2,data9day3,file="scRNAlist.Rdata")
-
-##==Integration of multiple samples use harmony==##
-library(harmony)
-mazie_scRNAlist <- load("scRNAlist.Rdata")
-scRNA_harmony <- merge(data6day1, y=data7day1, data7day2, data7day3)
-scRNA_harmony <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% ScaleData(vars.to.regress =c("percent.mt")) %>% RunPCA(verbose=FALSE)
-##整合
-system.time({scRNA_endosperm <- RunHarmony(scRNA_endosperm, group.by.vars = "orig.ident")})
-#降维聚类
-scRNA_harmony <- RunUMAP(scRNA_harmony, reduction = "harmony", dims = 1:50)
-scRNA_harmony <- RunTSNE(scRNA_harmony, reduction = "harmony", dims = 1:50)
-scRNA_harmony <- FindNeighbors(scRNA_harmony, reduction = "harmony", dims = 1:50) %>% FindClusters(resulotion=0.75)
 scRNA_harmony <- CellCycleScoring(scRNA_harmony, s.features = g1sgene,g2m.features = g2mgene, set.ident = TRUE)
 cell_cycle_before<-scRNA_harmony <- RunPCA(scRNA_harmony, features = c(g1sgene, g2mgene))
 scRNA_harmony <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% ScaleData(features = rownames(scRNA_harmony),vars.to.regress =c("percent.mt","S.Score","G2M.Score")) %>% RunPCA(verbose=FALSE)
@@ -336,7 +204,7 @@ clusters.res.0.75.averagexpression.integreted.RNA.data <- AverageExpression(maiz
 write.csv(as.matrix(clusters.res.0.75.averagexpression.integreted.RNA.data$RNA), "RNA-average.expression-res.0.75.csv")
 clusters.res.0.75.averagexpression.split.RNA.data <- AverageExpression(maize, assays = "RNA", slot = "data", add.ident = ("day"))
 write.csv(as.matrix(clusters.res.0.75.averagexpression.split.RNA.data$RNA), "RNA-average.expression-splitbyday-res.0.75.csv"
-## 根据注释和原位杂交注释细胞群
+## Annotation of cell populations based on annotation and in situ hybridisation
 maize$celltype <- NA
 maize$celltype[WhichCells(object = maize, idents = c(0))] <- "aleurone Ⅰ"
 maize$celltype[WhichCells(object = maize, idents = c(4))] <- "aleurone Ⅱ"
