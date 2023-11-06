@@ -1,10 +1,10 @@
-################计算regulon的AUCell值#########################
-#读取数据集和GRN#
+################Calculating the AUCell value for regulon#########################
+#load GRN#
 library(AUCell)
 library（Seurat)
 maize_sub <- readRDS("maize_sub.rds)
 grn <- read.table("resultdap.txt")
-##########################################将调控网络组成regulon#####################
+##########################################regulon#####################
 geneSets <- lapply(unique(grn$source),function(x){grn$target[grn$source==x]})
 names(geneSets) <- unique(grn$source)
 # Calculate enrichment scores
@@ -23,7 +23,7 @@ cells_assignment_0.1 <- AUCell_exploreThresholds(cells_AUC_0.1, plotHist=TRUE, n
 cells_assignment_0.15 <- AUCell_exploreThresholds(cells_AUC_0.15, plotHist=TRUE, nCores=64, assign=TRUE)
 cells_assignment_0.2 <- AUCell_exploreThresholds(cells_AUC_0.2, plotHist=TRUE, nCores=64, assign=TRUE)
 ########################################################################################################################
-##计算RAS###
+##Calculating RAS###
 library(data.table)
 library(pbapply)
 library(plyr)
@@ -46,7 +46,7 @@ ctMat <- lapply(cell.types, function(i) {
 ctMat <- do.call(cbind, ctMat)
 colnames(ctMat) <- cell.types
 rownames(ctMat) <- rownames(cell.info)
-##计算RAS
+##Calculating RSS
 rssMat <- pblapply(colnames(rasMat), function(i) {
   sapply(colnames(ctMat), function(j) {
     1 - JSD(rbind(rasMat[, i], ctMat[, j]), unit = 'log2', est.prob = "empirical")
