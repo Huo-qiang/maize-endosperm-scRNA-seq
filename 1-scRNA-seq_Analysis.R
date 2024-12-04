@@ -112,7 +112,7 @@ data7day3$day <- "7d"
 #data8day2$day <- "8d"
 d#ata8day3$day <- "8d"
 #cell cycle marker
-scRNA_endosperm <- CellCycleScoring(scRNA_endosperm, 
+#scRNA_endosperm <- CellCycleScoring(scRNA_endosperm, 
                                     s.features = g1sgene, 
                                     g2m.features = g2mgene, 
                                     set.ident = TRUE)
@@ -123,12 +123,14 @@ save(data6day1,data7day1,data7day2,data7day3,data8day1,data8day2,data9day3,file=
 library(harmony)
 mazie_scRNAlist <- load("scRNAlist.Rdata")
 scRNA_harmony <- merge(data6day1, y=data7day1, data7day2, data7day3)
+#Before removing cell cycle effects
 scRNA_harmony <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% ScaleData(vars.to.regress =c("percent.mt")) %>% RunPCA(verbose=FALSE)
-system.time({scRNA_endosperm <- RunHarmony(scRNA_endosperm, group.by.vars = "orig.ident")})
+system.time({scRNA_harmony <- RunHarmony(scRNA_harmony, group.by.vars = "orig.ident")})
 scRNA_harmony <- RunUMAP(scRNA_harmony, reduction = "harmony", dims = 1:50)
 scRNA_harmony <- FindNeighbors(scRNA_harmony, reduction = "harmony", dims = 1:50) %>% FindClusters(resulotion=0.75)
 scRNA_harmony <- CellCycleScoring(scRNA_harmony, s.features = g1sgene,g2m.features = g2mgene, set.ident = TRUE)
 cell_cycle_before<-scRNA_harmony <- RunPCA(scRNA_harmony, features = c(g1sgene, g2mgene))
+#Removal of cell cycle effects
 scRNA_harmony <- NormalizeData(scRNA_harmony) %>% FindVariableFeatures() %>% ScaleData(features = rownames(scRNA_harmony),vars.to.regress =c("percent.mt","S.Score","G2M.Score")) %>% RunPCA(verbose=FALSE)
 cell_cycle_after <- RunPCA(scRNA_harmony, features = c(g1sgene, g2mgene))
 #group_by_cluster
